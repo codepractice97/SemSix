@@ -1,4 +1,5 @@
 #include <graphics.h>
+#include <stdio.h>
 
 enum { TOP=0x8, BOTTOM=0x4, RIGHT=0x2, LEFT=0x1 };
 
@@ -42,53 +43,58 @@ int calcoutcode(int x, int y){
 	return outcode;
 }
 
-void doCLipping(int code1, int code2){
-	boolean accept = False, done = True;
+bool doCLipping(){
+	int code1 = calcoutcode(xl1,yl1);
+	int code2 = calcoutcode(xl2,yl2);
+	printf("outcode for point 1: %d\n", code1);
+	printf("outcode for point 2: %d\n", code2);
+	printf("OR: %d\n", code1 | code2);
+	printf("AND: %d\n", code1 & code2);
+
+	bool accept = false, done = false;
 	do {
-		if (code1 | code2 == 0){ // Trivial Acceptance
-			accept = True; done = True;
-		} else if (code1 & code2 != 0) { // Trivial Rejection
-			done = True;
+		if (!(code1 | code2)){ // Trivial Acceptance
+			accept = true; done = true;
+		} else if (code1 & code2) { // Trivial Rejection
+			done = true;
 		} else {
-			codeOut = code1 ? code1 : code2;
+			int codeOut = code1 ? code1 : code2;
 			int x,y;
 			if (codeOut & TOP) { // Clip from top
-				x = xl1 + (xl2-xl1)*(ymax-yl0)/(yl1-yl0);
-				y = ymax;
+				x = xl1 + (xl2-xl1)*(ymin-yl1)/(yl2-yl1);
+				y = ymin;
 			} else if (codeOut & BOTTOM) {
-				
+				x = xl1 + (xl2-xl1)*(ymax-yl1)/(yl2-yl1);
+				y = ymax;
 			} else if (codeOut & RIGHT) {
-				
+				y = yl1 + (yl2-yl1)*(xmax-xl1)/(xl2-xl1);
+				x = xmax;
 			} else {
-				
+				y = yl1 + (yl2-yl1)*(xmin-xl1)/(xl2-xl1);
+				x = xmin;
 			}
 
 			if(codeOut == code1){
-				xl1 = x; yl1 = y;
-			
+				xl1 = x; yl1 = y; code1 = calcoutcode(xl1,yl1);
 			} else {
-
+				xl2 = x; yl2 = y; code2 = calcoutcode(xl2,yl2);
 			}
 		}
 	} while(!done);
-	if(accept){
-		line(xl1,yl1,xl2,yl2);
-	}
+	return accept;
 }
 
 void cohenClipping(){
-	int p1_outcode = calcoutcode(xl1,yl1);
-	int p2_outcode = calcoutcode(xl2,yl2);
-	printf("outcode for point 1: %d\n", p1_outcode);
-	printf("outcode for point 2: %d\n", p2_outcode);
-
 	int gd = DETECT, gm;
 	initgraph(&gd, &gm, NULL);
-
-	doCLipping(p1_outcode ,p2_outcode );
-	
+	line(xl1,yl1,xl2,yl2);
 	rectangle(xmin,ymin,xmax,ymax);
-	delay(10000);
+	getch();
+	cleardevice();
+	rectangle(xmin,ymin,xmax,ymax);
+	if(doCLipping())
+		line(xl1,yl1,xl2,yl2);
+	getch();
 	closegraph();
 }
 
