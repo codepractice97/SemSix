@@ -1,0 +1,1 @@
+hw:- write('hello world').
