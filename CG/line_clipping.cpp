@@ -103,4 +103,3 @@ int main(){
 	cohenClipping();
 	return 0;
 }
-
