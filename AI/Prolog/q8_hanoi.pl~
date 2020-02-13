@@ -11,7 +11,7 @@ run_hanoi(S, A, D, N):-
 	run_hanoi(A, S, D, T).
 move(S, D):-
 	write('Move disk '),
-	write('from '),
+	write(' from '),
 	write(S),
 	write(' to '),
 	write(D),nl.
