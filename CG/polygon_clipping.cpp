@@ -1,49 +1,72 @@
+#include <iostream>
 #include <stdio.h>
 
 struct Vertice {
 	int x, y;
 	Vertice(int x, int y){
-		this.x = x;
-		this.y = y;
+		this->x = x;
+		this->y = y;
 	}
 };
 
 struct Polygon {
-	int count;
-	Vertice vertices;
-	Polygon(int count){
-		this.count = count;
-		vertices = new Vertice(count);
+	int vCount;
+	Vertice ** vertices;
+	Polygon(int vCount){
+		this->vCount = vCount;
+		vertices = new Vertice*[vCount];
 	}
-	void setVertice(int i, int x, int y){
-		Vertice vertice = new Vertice(x, y);
+	void setiVertice(int i, Vertice * vertice){
 		vertices[i] = vertice;
 	}
-	Vertice getVertice(int i){
+	Vertice * getVertice(int i){
 		return vertices[i];
 	}
-	int getCount(){
-		return count;
+	int getvCount(){
+		return vCount;
 	}
 };
 
-void input(Polygon &polygon, Vertice &vmin, Vertice &vmax){
-	std::cout << "Enter Vertices of clipping window" << std::endln;
+Vertice* inputVertice(){
+	int x, y;
+	std::cout << "X: ";
+	std::cin >> x;
+	std::cout << "Y: ";
+	std::cin >> y;
+	return new Vertice(x, y);
+}
+
+Vertice inputVMin(){
+	std::cout << "Enter top left vertice of clipping window" << std::endl;
+	return *inputVertice();
+}
+
+Vertice inputVMax(){
+	std::cout << "Enter bottom right vertice of clipping window" << std::endl;
+	return *inputVertice();
+}
+
+Polygon inputPolygon(){
 	std::cout << "Enter number of vertices in polygon: ";
-	int count;
-	std::cin >> count;
-	polygon = new Polygon(count);
-	for (int i = 0; i < count; i++){
-		int x, y;
-		std::cin >> x >> y;
-		polygon.setVertice(i, x, y);
+	int vCount;
+	std::cin >> vCount;
+	Polygon polygon(vCount);
+	for (int i = 0; i < vCount; i++){
+		std::cout << "Enter vertice " << i + 1 << std::endl;
+		polygon.setiVertice(i, inputVertice());
 	}
+	return polygon;
+}
+
+void doClipping(){
+
 }
 
 int main(){
-	Vertice vmin, vmax;
-	Polygon polygon;
-	void input(&vmin, &vmax, &polygon);
+	Vertice vmin = inputVMin();
+	Vertice vmax = inputVMax();
+	Polygon polygon = inputPolygon();
+
 	
 	return 0;
 }
