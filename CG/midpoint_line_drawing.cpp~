@@ -28,7 +28,7 @@ void drawmidpointline(){
 
     while(x < x2){
         if (d <= 0){
-            d += incr_E;
+            d += incr_E`;
             x++;
         } else {
             d += incr_NE;
