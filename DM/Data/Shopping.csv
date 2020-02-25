@@ -1,0 +1,21 @@
+,Product,Category,Price,Quantity,Total Price
+0,Bread,Food,20,2,40
+1,Milk,Food,60,5,300
+2,Biscuit,Food,20,2,40
+3,Bourn-Vita,Food,70,1,70
+4,Maggi,Food,20,5,100
+5,Tea,Food,120,1,120
+6,Soap,Hygiene,40,4,160
+7,Brush,Hygiene,30,2,60
+8,Detergent,Household,80,1,80
+9,Hair-Oil,Hygiene,100,1,100
+10,Perfume,Hygiene,150,1,150
+11,Tiffin Box,Household,75,2,150
+12,Pen,Stationary,5,10,50
+13,Pencil,Stationary,2,10,20
+14,T-Shirt,Clothes,250,3,750
+15,Bottle,Household,80,2,160
+16,Bucket,Household,200,1,200
+17,Chips,Food,10,15,150
+18,Juice,Food,100,4,400
+19,Tissues,Hygiene,30,5,150
