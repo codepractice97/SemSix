@@ -12,82 +12,108 @@ struct Vertice {
 };
 
 struct ActiveEdge {
-    int y_max, x_min, dx, yx;
+
+    int y_max, x_min, y_min, x, dx, dy, sum, sign;
+
     ActiveEdge(Vertice &v1, Vertice &v2){
         if (v1.y < v2.y) x_min = v1.x;
         else x_min = v2.x;
-        if (v1.y > v2.y) y_max = v1.y;
-        else y_max = v2.y;
+        if (v1.y > v2.y) {
+            y_max = v1.y;
+            y_min = v2.y;
+        } else {
+            y_max = v2.y;
+            y_min = v1.y;
+        }
+        x = x_min;
         dx = v2.x - v1.x;
-        yx = v2.y - v1.y;
+        dy = v2.y - v1.y;
+        sum = dy;
+        sign = (dx * dy >= 0) ? 1: -1;
+        dx = abs(dx); dy = abs(dy);
     }
 };
 
-struct GlobalEdgeTable {
-    std::list<std::list<ActiveEdge>> globalEdgeTable;
+bool static compareEdgeX(ActiveEdge& edge1, ActiveEdge& edge2){
+    return (edge1.x < edge2.x);
+}
+bool static compareEdgeYmin(ActiveEdge& edge1, ActiveEdge& edge2){
+    return (edge1.y_min < edge2.y_min);
+}
+
+std::list<int> getScanLines(std::list<Vertice> &polyVertices){
     std::list<int> scan_lines;
+    for(auto vertice: polyVertices)
+        scan_lines.push_back(vertice.y);
+    scan_lines.unique();
+    scan_lines.sort();
+    return scan_lines;
+}
 
-    GlobalEdgeTable(std::list<Vertice> &polyVertices){
-        // Find scan lines at polygon vertices
-        for(auto vertice: polyVertices)
-            scan_lines.push_back(vertice.y);
-        scan_lines.unique();
-        scan_lines.sort();
-        // Create Active Edge Tables for scan lines
-        for(auto scan_line: scan_lines){
-            std::list<ActiveEdge> previousEdgeTable;
-            if (globalEdgeTable.size() != 0)
-                previousEdgeTable.assign(
-                    globalEdgeTable.back().begin(),
-                    globalEdgeTable.back().end()
-                );
-            std::list<ActiveEdge> activeEdgeTable;
-            // Copy last active edges which still intersect with current scan line
-            for (auto edge: previousEdgeTable){
-                if(edge.y_max >= scan_line)
-                    activeEdgeTable.push_back(edge);
+std::list<ActiveEdge> createEdgeTable(std::list<Vertice> &polyVertices){
+    std::list<ActiveEdge> edgeTable;
+    Vertice i = polyVertices.back();
+    for (auto j: polyVertices){
+        ActiveEdge activeEdge(i, j);
+        edgeTable.push_back(activeEdge);
+        i = j;
+    }
+    edgeTable.sort(compareEdgeYmin);
+    return edgeTable;
+}
+
+void scanLineFilling(std::list<Vertice> &polyVertices){
+
+    std::list<int> scan_lines = getScanLines(polyVertices);
+    std::list<ActiveEdge> edgeTable = createEdgeTable(polyVertices);
+    std::list<ActiveEdge> activeEdges;
+
+    for (int scan_line = scan_lines.front(); scan_line <= scan_lines.back();){
+        while (!edgeTable.empty() && edgeTable.front().y_min == scan_line){
+            activeEdges.push_back(edgeTable.front());
+            edgeTable.pop_front();
+        }
+        activeEdges.sort(compareEdgeX);
+
+        // Display the active edge table
+        std::cout << "[" << scan_line << "]";
+        for(auto edge: activeEdges){
+            std::cout << "-->" << edge.y_max << " " << edge.x_min << " " << edge.x;
+        }
+        std::cout << std::endl;
+
+        bool parity = true;
+        auto edge1 = activeEdges.begin();
+        for(auto edge2 = ++activeEdges.begin(); edge2 != activeEdges.end(); ++edge2){
+            if (parity){
+                for(int px = edge1->x; px <= edge2->x; px++)
+                    putpixel(px, scan_line, RED);
+                parity = false;
+            } else parity = true;
+            edge1 = edge2;
+        }
+
+        scan_line++;
+
+        // Remove edges not interseting next scan line
+        for (auto edge = activeEdges.begin(); edge != activeEdges.end(); ++edge){
+            if(edge->y_max < scan_line){
+                edge = activeEdges.erase(edge);
+                edge--;
             }
+        }
 
-            // Add intersecting edges if not already present in AET
-            Vertice i = polyVertices.back();
-            for (auto j: polyVertices){
-                if (i.y == scan_line || j.y == scan_line){
-                    ActiveEdge activeEdge(i, j);
-                    if(!duplicate(activeEdge, activeEdgeTable))
-                        activeEdgeTable.push_back(activeEdge);
-                }
-                i = j;
+        // Increment x values depending on slope of edge
+        for (auto edge = activeEdges.begin(); edge != activeEdges.end(); ++edge){
+            edge->sum += edge->dx;
+            if (edge->sum > edge->dy){
+                edge->x += edge->sign;
+                edge->sum -= edge->dy;
             }
-
-            // Sort the activate edges in increasing order of x_min
-            // and add to the active edge table
-            activeEdgeTable.sort(compareEdge);
-            globalEdgeTable.push_back(activeEdgeTable);
-
-            // Display the active edge table
-            std::cout << "[" << scan_line << "]";
-            for(auto edge: activeEdgeTable){
-                std::cout << "-->" << edge.y_max << " " << edge.x_min;
-            }
-            std::cout << std::endl;
+            std::cout << "SHIT";
         }
     }
-
-    private:
-    bool static compareEdge(ActiveEdge& edge1, ActiveEdge& edge2){
-        return (edge1.x_min < edge2.x_min);
-    }
-    bool duplicate(ActiveEdge& activeEdge, std::list<ActiveEdge>& activeEdgeTable){
-        for(auto edge: activeEdgeTable){
-            if (
-                edge.x_min == activeEdge.x_min &&
-                edge.y_max == activeEdge.y_max &&
-                edge.dx == activeEdge.dx &&
-                edge.yx == activeEdge.yx)
-                return true;
-        } return false;
-    }
-};
+}
 
 Vertice inputVertice(){
 	int x, y;
@@ -112,5 +138,14 @@ std::list<Vertice> inputPolygon(){
 
 int main(){
     std::list<Vertice> polyVertices = inputPolygon();
-    GlobalEdgeTable globalEdgeTable(polyVertices);
+
+    int gd = DETECT, gm;
+    initgraph(&gd, &gm, NULL);
+
+    scanLineFilling(polyVertices);
+    
+    getch();
+    closegraph();
+
+    return 0;
 }
