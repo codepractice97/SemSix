@@ -13,7 +13,7 @@ struct Vertice {
 
 struct ActiveEdge {
 
-    int y_max, x_min, y_min, x, dx, dy, sum, sign;
+    int y_max, x_min, y_min, x, dx, dy, sum, incr;
 
     ActiveEdge(Vertice &v1, Vertice &v2){
         if (v1.y < v2.y) x_min = v1.x;
@@ -29,7 +29,7 @@ struct ActiveEdge {
         dx = v2.x - v1.x;
         dy = v2.y - v1.y;
         sum = dy;
-        sign = (dx * dy >= 0) ? 1: -1;
+        incr = (dx == 0 || dy == 0) ? 0 : (float(dx)/float(dy)) > 0 ? 1 : -1;
         dx = abs(dx); dy = abs(dy);
     }
 };
@@ -106,11 +106,10 @@ void scanLineFilling(std::list<Vertice> &polyVertices){
         // Increment x values depending on slope of edge
         for (auto edge = activeEdges.begin(); edge != activeEdges.end(); ++edge){
             edge->sum += edge->dx;
-            if (edge->sum > edge->dy){
-                edge->x += edge->sign;
+            while (edge->sum > edge->dy){
+                edge->x += edge->incr;
                 edge->sum -= edge->dy;
             }
-            std::cout << "SHIT";
         }
     }
 }
