@@ -75,21 +75,18 @@ void scanLineFilling(std::list<Vertice> &polyVertices){
         }
         activeEdges.sort(compareEdgeX);
 
-        // Display the active edge table
-        std::cout << "[" << scan_line << "]";
-        for(auto edge: activeEdges){
-            std::cout << "-->" << edge.y_max << " " << edge.x_min << " " << edge.x;
-        }
-        std::cout << std::endl;
-
         bool parity = true;
         auto edge1 = activeEdges.begin();
         for(auto edge2 = ++activeEdges.begin(); edge2 != activeEdges.end(); ++edge2){
+            // Skip edge pairs if there vertice is at current scan line
+            // and the edges lie on either side of scan line
+            if (edge1->y_min == edge2->y_max || edge1->y_max == edge2->y_min)
+                continue;
             if (parity){
                 for(int px = edge1->x; px <= edge2->x; px++)
                     putpixel(px, scan_line, RED);
-                parity = false;
-            } else parity = true;
+            }
+            parity = !parity;
             edge1 = edge2;
         }
 

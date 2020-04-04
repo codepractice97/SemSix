@@ -163,7 +163,7 @@ std::list<Vertice> clipLeft(int bound, std::list<Vertice> &polyVertices){
 	return clippedPoly;
 }
 
-std::list<Vertice> doCLipping(Vertice &vmin, Vertice &vmax, std::list<Vertice> &polyVertices){
+std::list<Vertice> clipPolygon(Vertice &vmin, Vertice &vmax, std::list<Vertice> &polyVertices){
 	// clipRight(Vertice(vmax.x, vmin.y), Vertice(vmax.x, vmax.y), polyVertices);
 	std::list<Vertice> clippedPoly = clipTop(vmin.y, polyVertices);
 	clippedPoly = clipRight(vmax.x, clippedPoly);
@@ -181,7 +181,7 @@ int main(){
 
 	draw(vmin, vmax, polyVertices);
 	getch();
-	std::list<Vertice> clippedPoly = doCLipping(vmin, vmax, polyVertices);
+	std::list<Vertice> clippedPoly = clipPolygon(vmin, vmax, polyVertices);
 	cleardevice();
 	draw(vmin, vmax, clippedPoly);
 	getch();
