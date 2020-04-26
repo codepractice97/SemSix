@@ -10,8 +10,11 @@ struct Object {
         // Create vertices and edges 2D array
         vCount = vC;
         vertices = new float*[vCount];
-        for(int i = 0 ; i < vCount; i++)
+        for(int i = 0 ; i < vCount; i++){
             vertices[i] = new float[4];
+            for(int j = 0; j < 4; j++)
+                vertices[i][j] = 0;
+        }
         edges = new float*[vCount];
         for(int i = 0 ; i < vCount; i++){
             edges[i] = new float[vCount];
@@ -21,7 +24,6 @@ struct Object {
     }
 
     Object(const Object &object): Object(object.vCount) {
-        std::cout << "Copied\n";
         for (int i = 0; i < vCount; i++){
             for (int j = 0; j < 4; j++)
                 vertices[i][j] = object.vertices[i][j];

@@ -9,7 +9,7 @@
 
 class Drawer{
 
-    int oX, oY;
+    int oX, oY, px, py, pz;
     
     void drawLine(float x1, float y1, float x2, float y2){
         y1 *= -1; y2 *= -1;
@@ -36,17 +36,20 @@ class Drawer{
             P[2][2] = 0;
         } else if (p_type == AXONOMETRIC) {
             // Isometric Projection
-            Transformer t1(ROTATION_Y, 45);
+            Transformer t1(ROTATION_Y, -45);
             object = t1.transform(object);
-            Transformer t2(ROTATION_X, -35.26);
+            Transformer t2(ROTATION_X, 35.26);
             object = t2.transform(object);
             P[2][2] = 0;
         } else if (p_type == OBLIQUE){
-            P[2][0] = (1.0/2) * cos(45 * PI / 180);
-            P[2][1] = (1.0/2) * sin(45 * PI / 180);
+            P[2][0] = -1 * (1.0/2) * cos(45 * PI / 180);
+            P[2][1] = -1 * (1.0/2) * sin(45 * PI / 180);
             P[2][2] = 0;
         } else if (p_type == PERSPECTIVE){
-            
+            P[0][3] = -1.0/px;
+            P[1][3] = -1.0/py;
+            P[2][3] = -1.0/pz;
+            P[2][2] = 0;
         }
 
         // Apply Projection
@@ -57,6 +60,11 @@ class Drawer{
                 for (int k = 0; k < 4; k++){
                     projObject.vertices[i][j] += object.vertices[i][k] * P[k][j];
                 }
+            }
+        }
+        for (int i = 0; i < projObject.vCount; i++){
+            for (int j = 0; j < 4; j++){
+                projObject.vertices[i][j] /= projObject.vertices[i][3];
             }
         }
         return projObject;
@@ -75,6 +83,10 @@ public:
         line(0, oY, getmaxx(), oY);
         line(oX, 0, oX, getmaxy());
         setlinestyle(SOLID_LINE, 0, NORM_WIDTH);
+    }
+
+    Drawer(int x, int y, int z): Drawer() {
+        px = x; py = y; pz = z;
     }
 
     void drawObject(Object object, PROJECTION_TYPE ptype){

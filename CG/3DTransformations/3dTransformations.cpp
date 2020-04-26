@@ -88,12 +88,18 @@ int main(int argc, char **argv){
         exit(0);
     }
 
-    PROJECTION_TYPE ptype = projectionOpt();
     Object object = create3dObject(objectFileName);
-    
+
+    PROJECTION_TYPE ptype = projectionOpt();
+    int px, py, pz;
+    if (ptype == PERSPECTIVE){
+        std::cout << "Enter Perspective point(x,y,z)\n";
+        scanf("%d,%d,%d", &px, &py, &pz);
+    }
+
     Transformer transformer(transformationOpt());
     transformer.displayTranformationMatrix();
-    Drawer drawer;
+    Drawer drawer(px, py, pz);
     setcolor(WHITE);
     drawer.drawObject(object, ptype);
     Object transformedObject = transformer.transform(object);
