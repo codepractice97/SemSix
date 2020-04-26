@@ -33,7 +33,7 @@ Object create3dObject(char *obFName){
     return object;
 }
 
-int transformationOpt(){
+TRANSFORMATION_TYPE transformationOpt(){
     int opt;
     std::cout << "Choose Transformation Type:" << std::endl;
     std::cout << "1: Translation" << std::endl;
@@ -47,7 +47,18 @@ int transformationOpt(){
     std::cout << "9: Reflection(Through XZ Plane)" << std::endl;
     std::cout << "Any other value: No Transformation" << std::endl;
     scanf("%d", &opt);
-    return opt;
+    switch (opt) {
+        case 1: return TRANSLATION;
+        case 2: return SCALING;
+        case 3: return ROTATION_X;
+        case 4: return ROTATION_Y;
+        case 5: return ROTATION_Z;
+        case 6: return SHEARING;
+        case 7: return REFLECTION_XY;
+        case 8: return REFLECTION_YZ;
+        case 9: return REFLECTION_XZ;
+        default: return NO_TRANS;
+    }
 }
 
 PROJECTION_TYPE projectionOpt(){
@@ -57,18 +68,14 @@ PROJECTION_TYPE projectionOpt(){
     std::cout << "2: Axonometric(Isometric)" << std::endl;
     std::cout << "3: Oblique" << std::endl;
     std::cout << "4: Perspective" << std::endl;
+    std::cout << "Any other value: Orthographic" << std::endl;
     scanf("%d", &opt);
     switch (opt) {
-    case 1:
-        return ORTHOGRAPHIC;
-    case 2:
-        return AXONOMETRIC;
-    case 3:
-        return OBLIQUE;
-    case 4:
-        return PERSPECTIVE;
-    default:
-        return ORTHOGRAPHIC;
+        case 1: return ORTHOGRAPHIC;
+        case 2: return AXONOMETRIC;
+        case 3: return OBLIQUE;
+        case 4: return PERSPECTIVE;
+        default: return ORTHOGRAPHIC;
     }
 }
 
@@ -84,14 +91,14 @@ int main(int argc, char **argv){
     PROJECTION_TYPE ptype = projectionOpt();
     Object object = create3dObject(objectFileName);
     
-    // setTransformationMatrix(transformationOpt());
+    Transformer transformer(transformationOpt());
+    transformer.displayTranformationMatrix();
     Drawer drawer;
-    // setcolor(BLUE);
+    setcolor(WHITE);
     drawer.drawObject(object, ptype);
-    // transform(V);
-    // setcolor(RED);
-    // drawer.drawObject(V, vCount);
+    Object transformedObject = transformer.transform(object);
+    setcolor(RED);
+    drawer.drawObject(transformedObject, ptype);
 
-    getch();
     return 0;
 }

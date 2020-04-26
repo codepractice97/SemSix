@@ -2,6 +2,7 @@
 #define DRAWER_H
 
 #include <graphics.h>
+#include <math.h>
 
 #include "Definitions.h"
 #include "Transformer.h"
@@ -20,7 +21,7 @@ class Drawer{
         );
     }
 
-    void project(Object object, PROJECTION_TYPE p_type){
+    Object project(Object object, PROJECTION_TYPE p_type){
         float P[4][4];
         for(int i = 0 ; i < 4; i++){
             for(int j = 0; j < 4; j++){
@@ -30,31 +31,35 @@ class Drawer{
         }
 
         // Select Projection matrix
+        const double PI = atan(1) * 4;
         if (p_type == ORTHOGRAPHIC) {
             P[2][2] = 0;
         } else if (p_type == AXONOMETRIC) {
-            Transformer t1(ROTATION_Y, -45);
-            t1.transform(object);
-            Transformer t2(ROTATION_Y, 35.26);
-            t2.transform(object);
+            // Isometric Projection
+            Transformer t1(ROTATION_Y, 45);
+            object = t1.transform(object);
+            Transformer t2(ROTATION_X, -35.26);
+            object = t2.transform(object);
             P[2][2] = 0;
+        } else if (p_type == OBLIQUE){
+            P[2][0] = (1.0/2) * cos(45 * PI / 180);
+            P[2][1] = (1.0/2) * sin(45 * PI / 180);
+            P[2][2] = 0;
+        } else if (p_type == PERSPECTIVE){
+            
         }
 
         // Apply Projection
-        float mul[object.vCount][4];
-        for (int i = 0; i < object.vCount; i++){
+        Object projObject = object;
+        for (int i = 0; i < projObject.vCount; i++){
             for (int j = 0; j < 4; j++){
-                mul[i][j] = 0;
+                projObject.vertices[i][j] = 0;
                 for (int k = 0; k < 4; k++){
-                    mul[i][j] += object.vertices[i][k] * P[k][j];
+                    projObject.vertices[i][j] += object.vertices[i][k] * P[k][j];
                 }
             }
         }
-        // copy matrix
-        for (int i = 0; i < object.vCount; i++){
-            for (int j = 0; j < 4; j++)
-                object.vertices[i][j] = mul[i][j];
-        }
+        return projObject;
     }
 
 public:
@@ -73,7 +78,7 @@ public:
     }
 
     void drawObject(Object object, PROJECTION_TYPE ptype){
-        project(object, ptype);
+        object = project(object, ptype);
         for (int i = 0; i < object.vCount; i++){
             for (int j = 0; j < object.vCount; j++){
                 if (object.edges[i][j])
@@ -88,6 +93,7 @@ public:
     }
 
     ~Drawer(){
+        getchar();
         closegraph();
     }
 };

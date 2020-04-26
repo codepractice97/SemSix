@@ -1,5 +1,5 @@
-#ifndef GRANDPARENT_H
-#define GRANDPARENT_H
+#ifndef DEFINITIONS_H
+#define DEFINITIONS_H
 
 struct Object {
     int vCount;
@@ -19,6 +19,17 @@ struct Object {
                 edges[i][j] = 0;
         }
     }
+
+    Object(const Object &object): Object(object.vCount) {
+        std::cout << "Copied\n";
+        for (int i = 0; i < vCount; i++){
+            for (int j = 0; j < 4; j++)
+                vertices[i][j] = object.vertices[i][j];
+            for (int j = 0; j < vCount; j++)
+                edges[i][j] = object.edges[i][j];
+        }
+    }
+
 };
 
 enum PROJECTION_TYPE {
@@ -37,7 +48,8 @@ enum TRANSFORMATION_TYPE {
     SHEARING,
     REFLECTION_XY,
     REFLECTION_YZ,
-    REFLECTION_XZ
+    REFLECTION_XZ,
+    NO_TRANS
 };
 
 #endif
